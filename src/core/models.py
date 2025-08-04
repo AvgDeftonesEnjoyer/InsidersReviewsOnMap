@@ -4,18 +4,20 @@ from django.core.validators import MinValueValidator as Min, MaxValueValidator a
 
 User = get_user_model()   
 
-class Category(models.Model):
-    name = models.CharField(max_length = 100, unique = True)
-    
-    def __str__(self):
-        return self.name
-    
 class Location(models.Model):
+    CATEGORY_CHOICES = [
+        ('food', 'Food'),
+        ('park', 'Park'),
+        ('shop', 'Shop'),
+        ('museum', 'Museum'),
+    ]
+    
     title = models.CharField(max_length = 200)
     description = models.TextField(blank = True)
-    category = models.ForeignKey(Category, on_delete = models.CASCADE, related_name = 'locations')
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
     created_at = models.DateTimeField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now = True)
+    is_active = models.BooleanField(default = True)
     
     def __str__(self):
         return self.title

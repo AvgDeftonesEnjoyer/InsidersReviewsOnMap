@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from .models import Category, Location, Review, ReviewLike
+from .models import Location, Review, ReviewLike
 
 User = get_user_model()
 
@@ -19,34 +19,25 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         return user
 
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ['id', 'name']
 
 class LocationSerializer(serializers.ModelSerializer):
-    category = CategorySerializer(read_only=True)
-    category_id = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.all(),
-        source='category',
-        write_only=True
-    )
-    
+    category = serializers.ChoiceField(choices=Location.CATEGORY_CHOICES)
+    average_rating = serializers.FloatField(read_only=True)
+
     class Meta:
         model = Location
-        fields = ['id', 'title', 'description', 'category', 'category_id', 'created_at', 'updated_at']
+        fields = ['id', 'title', 'description', 'category', 'average_rating', 'created_at', 'updated_at']
         
 class ReviewSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)
-    location_id = serializers.PrimaryKeyRelatedField(
+    location = serializers.PrimaryKeyRelatedField(
         queryset=Location.objects.all(),
-        source='location',
         write_only=True
     )
     
     class Meta:
         model = Review
-        fields = ['id', 'user', 'location_id', 'text', 'rating', 'created_at']
+        fields = ['id', 'user', 'location', 'text', 'rating', 'created_at']
         
 class ReviewLikeSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only = True)
